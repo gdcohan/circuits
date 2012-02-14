@@ -1,0 +1,58 @@
+big-O analysis:
+
+There are three main sections of our program: getting islands from the connection list, getting islands from the image, and comparing the resulting lists of islands to determine faults. 
+
+Part 1:
+~~~~~~~~
+
+Functions:
+process-pin
+process-connection
+connections->islands
+
+
+process-pin
+There are 2 cases for process-pin:
+1) The pin is not in one of the islands from the image.
+2) The pin is in one of the islands from the image.
+
+In case 1, the pin must be searched for using member in every island in the list, which is linear in the total number of pins in the list of islands. Then the pin is just cons'd onto the island the other pin was found in, which is constant time.
+
+In case 2, the pin must be searched for using member in every island until the one it is found in. In the worst case, it is the last pin in the last island, in which case all the pins in the list of islands are processed (once again, linear in the total number of pins). Additionally, once the pin is found, this island and the island the first pin was found in must be appended. This is linear in the size of the island the first pin was found in.
+
+Thus, case 2 has a worse worst case than case 1. If x is the total number of pins in the list of islands and y is the number of pins in the island the first pin was found in, process-pin is in O[x,y -> x+y].
+
+~~~~~~~~~~
+
+process-connection
+There are 4 cases for process-connection:
+
+1) Both pins are in the same island. 
+2) Neither pin is in any island. 
+3) Only one pin is in any of the islands.
+4) The two pins are in different islands.
+
+In case 1, the worst case is for both pins to be the last 2 pins in the last island. This requires linear membership checks for each island in the list, so this is linear in the total number of pins in the list of islands. No further work is done in this case.
+
+Case 2 also requires searching through every island for both pins, so it is also linear in the total number of pins in the list of islands. Creating a new island containing these 2 pins is constant time.
+
+In case 3, the worst case is for the found pin to be the last pin in the last island. By the same reasoning, this is again linear in the total number of pins in the list of islands. Consing the unfound pin onto this island is constant time.
+
+In case 4, the worst case is for one pin to be the last pin in the second-to-last island and the other pin to be the last pin in the last island. This requires membership tests for both pins in every island (except the last for the first pin found), which is linear in the total number of pins in the list of islands. Then, the two islands must be appended together, which is linear in the size of the first island found.
+
+Thus, case 4 has the worst worst case. If x is the total number of pins in the list of islands and y is the size of the second-to-last island, process-pin is in O[x,y -> x + y]. However, in this case we know that since the second-to-last island is part of the list of islands, x>y. Then process-pin is in O[x,y -> x], or O[x -> x].
+
+~~~~~~~~~~~
+
+connections->islands
+
+For every connection in the connections list, we call process-connection. Since the complexity of process-connection is bounded by the current size of the list of islands, the worst case is found when this size is always maximized.
+After processing k connections, the maximum number of pins in the list of islands is 2k. This will only occur if all the pins are unique, that is, if all the islands generated consist of just 2 pins specified by a connection.
+
+In this case, we see that the sum of the time taken will look like 2 + 4 + 6 + ... 2k, or 2(1 + 2 + 3 + ... k) = k(k + 1).
+
+Thus, if k is the number of connections in the list, connections->islands is in O[k -> k^2].
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
